@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr" id="htmlRoot">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="pageTitle">Tooth Hero Adventure | MGMR Dentistry</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
+            font-family: 'Tahoma', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            overflow: hidden;
+            color: white;
+        }
+        .game-container {
+            position: relative;
+            background: rgba(15, 23, 42, 0.7);
+            padding: 15px;
+            border-radius: 24px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            backdrop-filter: blur(10px);
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            width: 400px;
+            margin-bottom: 10px;
+            padding: 0 5px;
+        }
+        .header-btns {
+            display: flex;
+            gap: 6px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 19px;
+            color: #38bdf8;
+            text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
+            font-weight: 800;
+        }
+        .settings-btn {
+            background: rgba(30, 41, 59, 0.8);
+            border: 1.5px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 5px 8px;
+            border-radius: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .settings-btn:hover {
+            background: #38bdf8;
+            color: #0f172a;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
+            transform: scale(1.05);
+        }
+        .stats-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 400px;
+            margin-bottom: 10px;
+        }
+        .score-board, .best-board, .level-board {
+            background: rgba(30, 41, 59, 0.6);
+            padding: 6px 12px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(56, 189, 248, 0.3);
+            font-size: 13px;
+            font-weight: 700;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        canvas {
+            border: 3px solid rgba(56, 189, 248, 0.4);
+            background: linear-gradient(to bottom, #0284c7, #0f172a);
+            box-shadow: 0 0 25px rgba(56, 189, 248, 0.2);
+            border-radius: 16px;
+            display: block;
+        }
+        .instructions {
+            margin-top: 8px;
+            font-size: 11px;
+            color: #94a3b8;
+            text-align: center;
+            max-width: 400px;
+        }
+
+        #achievementToast {
+            position: absolute;
+            top: 75px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50px);
+            background: linear-gradient(135deg, #10b981 0%, #047857 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 5px 20px rgba(16, 185, 129, 0.5);
+            z-index: 15;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            opacity: 0;
+            transition: all 0.4s ease;
+            pointer-events: none;
+        }
+        #achievementToast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        .badge-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 12px 0;
+            max-height: 180px;
+            overflow-y: auto;
+            text-align: left;
+        }
+        .badge-item {
+            background: rgba(30, 41, 59, 0.7);
+            border: 1px solid rgba(56, 189, 248, 0.3);
+            padding: 8px 12px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 12px;
+        }
+        .badge-item.unlocked {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.15);
+        }
+
+        .modal-body-content {
+            text-align: left;
+            font-size: 12px;
+            color: #cbd5e1;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 12px 0;
+            max-height: 220px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+        .modal-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            background: rgba(30, 41, 59, 0.6);
+            padding: 6px 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(56, 189, 248, 0.2);
+            line-height: 1.4;
+        }
+        .section-title {
+            color: #38bdf8;
+            font-size: 13px;
+            font-weight: bold;
+            margin-top: 6px;
+            margin-bottom: 2px;
+            border-bottom: 1px solid rgba(56, 189, 248, 0.3);
+            padding-bottom: 3px;
+        }
+
+        #gameOverScreen {
+            position: absolute;
+            top: 65px;
+            left: 15px;
+            width: 400px;
+            height: 480px;
+            background: rgba(15, 23, 42, 0.96);
+            border-radius: 16px;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+        }
+        #gameOverScreen h2 {
+            color: #ef4444;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+        #finalScoreText {
+            color: #38bdf8;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        .tip-box {
+            background: rgba(30, 41, 59, 0.9);
+            border: 2px solid rgba(56, 189, 248, 0.5);
+            padding: 12px 15px;
+            border-radius: 12px;
+            font-size: 13px;
+            color: #f8fafc;
+            margin-bottom: 20px;
+            width: 100%;
+            line-height: 1.5;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+        #restartPrompt {
+            color: #38bdf8;
+            font-size: 13px;
+            font-weight: bold;
+            animation: pulse 1.5s infinite;
+        }
+        @keyframes pulse {
+            0% { opacity: 0.6; }
+            50% { opacity: 1; }
+            100% { opacity: 0.6; }
+        }
+
+        .modal {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15, 23, 42, 0.92);
+            backdrop-filter: blur(10px);
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .modal-content {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            padding: 22px;
+            border-radius: 20px;
+            border: 2px solid rgba(56, 189, 248, 0.4);
+            text-align: center;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2);
+            max-width: 360px;
+            width: 90%;
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn {
+            0% { transform: scale(0.8); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .modal-content h2 {
+            margin-top: 0;
+            color: #38bdf8;
+            font-size: 18px;
+            margin-bottom: 12px;
+        }
+        .btn-option {
+            background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
+            color: #0f172a;
+            border: none;
+            padding: 9px 16px;
+            font-size: 14px;
+            font-weight: 800;
+            border-radius: 12px;
+            cursor: pointer;
+            margin: 4px 0;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
+        }
+        .btn-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
+            background: linear-gradient(135deg, #7dd3fc 0%, #0284c7 100%);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
+            color: white;
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
+        }
+        .btn-danger:hover {
+            background: linear-gradient(135deg, #fb7185 0%, #be123c 100%);
+            box-shadow: 0 6px 20px rgba(244, 63, 94, 0.6);
+        }
+    </style>
+</head>
+<body>
+
+    <div id="startModal" class="modal">
+        <div class="modal-content">
+            <h2 id="startTitle">🦷 Tooth Hero Adventure</h2>
+            <button class="btn-option" id="startBtn" onclick="startGame()">Start Game 🚀</button>
+            <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openHowToPlayModal()">📖 <span id="howToPlayBtnText">How to Play</span></button>
+            <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openTipsModal()">💡 <span id="dentalTipsBtnText">Dental Care Tips</span></button>
+            <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openBadgesModal()">🏅 <span id="badgesBtnText">Achievements</span></button>
+            <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openSettingsFromStart()">⚙️ <span id="settingsBtnText">Settings</span></button>
+        </div>
+    </div>
+
+    <div id="howToPlayModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 380px;">
+            <h2 id="howModalTitle">📖 How to Play</h2>
+            <div class="modal-body-content" id="howToPlayTextContainer"></div>
+            <button class="btn-option btn-danger" onclick="closeHowToPlayModal()" id="closeHowBtn">Close</button>
+        </div>
+    </div>
+
+    <div id="tipsModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 380px;">
+            <h2 id="tipsModalTitle">💡 Dental Care Tips</h2>
+            <div class="modal-body-content" id="tipsTextContainer"></div>
+            <button class="btn-option btn-danger" onclick="closeTipsModal()" id="closeTipsBtn">Close</button>
+        </div>
+    </div>
+
+    <div id="badgesModal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 360px;">
+            <h2 id="badgesTitle">🏅 Medical Achievements</h2>
+            <div class="badge-list" id="badgeContainer"></div>
+            <button class="btn-option btn-danger" onclick="closeBadgesModal()" id="closeBadgeBtn">Close</button>
+        </div>
+    </div>
+
+    <div id="settingsModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2 id="setModalTitle">Settings</h2>
+            <button class="btn-option" onclick="switchLang('ar')">العربية 🇸🇦</button>
+            <button class="btn-option" onclick="switchLang('en')">English 🇬🇧</button>
+            <button class="btn-option btn-danger" id="closeSetBtn" onclick="closeSettings()">Close</button>
+        </div>
+    </div>
+
+    <div class="game-container">
+        <div id="achievementToast">🏆 <span id="toastText">Achievement Unlocked!</span></div>
+
+        <div class="header-container">
+            <h1 id="gameTitle">🦷 Tooth Hero Adventure</h1>
+            <div class="header-btns">
+                <button class="settings-btn" id="audioToggleBtn" onclick="toggleAudio()" title="Toggle Sound">🔊</button>
+                <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
+            </div>
+        </div>
+
+        <div class="stats-bar">
+            <div class="score-board"><span id="scoreText">⭐ Score:</span> <span id="scoreVal">0</span></div>
+            <div class="best-board">🏆 <span id="bestText">Best:</span> <span id="bestVal">0</span></div>
+            <div class="level-board">🎯 <span id="levelText">Level:</span> <span id="levelVal">1</span></div>
+        </div>
+
+        <div id="gameOverScreen">
+            <h2 id="goTitle">Game Over! 🦠</h2>
+            <div id="finalScoreText">Final Score: <span id="finalScoreVal">0</span></div>
+            <div class="tip-box" id="tipContent">💡 Tip goes here</div>
+            <div id="restartPrompt">Press Enter or Click to Restart</div>
+        </div>
+
+        <canvas id="gameCanvas" width="400" height="480"></canvas>
+    </div>
+
+    <div class="instructions" id="instructionText">Move tooth to collect brushes & mouthwash, avoid bacteria!</div>
+
+    <script>
+        const canvas = document.getElementById("gameCanvas");
+        const ctx = canvas.getContext("2d");
+
+        let currentLang = localStorage.getItem("game_lang") || "en";
+        let bestScore = localStorage.getItem("tooth_best_score") || 0;
+        let gameStarted = false;
+        let isMuted = false;
+
+        document.getElementById("bestVal").innerText = bestScore;
+
+        function toggleAudio() {
+            isMuted = !isMuted;
+            let btn = document.getElementById("audioToggleBtn");
+            btn.innerText = isMuted ? "🔇" : "🔊";
+        }
+
+        let achievements = JSON.parse(localStorage.getItem("tooth_achievements")) || {
+            brushMaster: false,
+            shieldHero: false,
+            topScorer: false
+        };
+
+        let totalBrushesCollected = parseInt(localStorage.getItem("tooth_total_brushes")) || 0;
+        let totalShieldsCollected = parseInt(localStorage.getItem("tooth_total_shields")) || 0;
+
+        function checkAchievement(id, titleText) {
+            if (!achievements[id]) {
+                achievements[id] = true;
+                localStorage.setItem("tooth_achievements", JSON.stringify(achievements));
+                showToast(titleText);
+                playSound('levelup');
+            }
+        }
+
+        function showToast(text) {
+            let toast = document.getElementById("achievementToast");
+            document.getElementById("toastText").innerText = text;
+            toast.classList.add("show");
+            setTimeout(() => {
+                toast.classList.remove("show");
+            }, 3500);
+        }
+
+        function openBadgesModal() {
+            renderBadges();
+            document.getElementById("badgesModal").style.display = "flex";
+        }
+
+        function closeBadgesModal() {
+            document.getElementById("badgesModal").style.display = "none";
+        }
+
+        function openHowToPlayModal() {
+            renderHowToPlay();
+            document.getElementById("howToPlayModal").style.display = "flex";
+        }
+
+        function closeHowToPlayModal() {
+            document.getElementById("howToPlayModal").style.display = "none";
+        }
+
+        function openTipsModal() {
+            renderTips();
+            document.getElementById("tipsModal").style.display = "flex";
+        }
+
+        function closeTipsModal() {
+            document.getElementById("tipsModal").style.display = "none";
+        }
+
+        function renderBadges() {
+            let t = translations[currentLang].badgesData;
+            let container = document.getElementById("badgeContainer");
+            container.innerHTML = `
+                <div class="badge-item ${achievements.brushMaster ? 'unlocked' : ''}">
+                    <span>🦷 ${t.brushMaster}</span>
+                    <span>${achievements.brushMaster ? '✅' : '🔒'}</span>
+                </div>
+                <div class="badge-item ${achievements.shieldHero ? 'unlocked' : ''}">
+                    <span>🛡️ ${t.shieldHero}</span>
+                    <span>${achievements.shieldHero ? '✅' : '🔒'}</span>
+                </div>
+                <div class="badge-item ${achievements.topScorer ? 'unlocked' : ''}">
+                    <span>👑 ${t.topScorer}</span>
+                    <span>${achievements.topScorer ? '✅' : '🔒'}</span>
+                </div>
+            `;
+        }
+
+        function renderHowToPlay() {
+            let t = translations[currentLang].howToPlayItems;
+            let container = document.getElementById("howToPlayTextContainer");
+            container.innerHTML = `
+                <div class="modal-item"><span>🦷</span><span>${t.move}</span></div>
+                <div class="modal-item"><span>🪥</span><span>${t.brush}</span></div>
+                <div class="modal-item"><span>🛡️</span><span>${t.shield}</span></div>
+                <div class="modal-item"><span>💧</span><span>${t.mouthwash}</span></div>
+                <div class="modal-item"><span>🦠</span><span>${t.bacteria}</span></div>
+            `;
+        }
+
+        function renderTips() {
+            let t = translations[currentLang].dentalTipsData;
+            let container = document.getElementById("tipsTextContainer");
+            container.innerHTML = `
+                <div class="section-title">🌟 نصائح عامة للكبار (General Tips)</div>
+                <div class="modal-item"><span>⏱️</span><span>${t.tipGeneral1}</span></div>
+                <div class="modal-item"><span>🧵</span><span>${t.tipGeneral2}</span></div>
+                <div class="modal-item"><span>🩺</span><span>${t.tipGeneral3}</span></div>
+
+                <div class="section-title">🧸 نصائح خاصة للأطفال (Kids Dental Care)</div>
+                <div class="modal-item"><span>👶</span><span>${t.tipKids1}</span></div>
+                <div class="modal-item"><span>🍬</span><span>${t.tipKids2}</span></div>
+                <div class="modal-item"><span>🦷</span><span>${t.tipKids3}</span></div>
+            `;
+        }
+
+        let audioCtx = null;
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+        }
+
+        function playSound(type) {
+            if (isMuted || !audioCtx) return;
+            try {
+                let osc = audioCtx.createOscillator();
+                let gain = audioCtx.createGain();
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+
+                let now = audioCtx.currentTime;
+
+                if (type === 'score' || type === 'mouthwash') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(587.33, now);
+                    osc.frequency.exponentialRampToValueAtTime(1100, now + 0.2);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'shield' || type === 'levelup') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.linearRampToValueAtTime(800, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'hit') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.linearRampToValueAtTime(50, now + 0.3);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                }
+            } catch (e) {}
+        }
+
+        const translations = {
+            ar: {
+                title: "مغامرة الضرس البطل | MGMR Dentistry",
+                h1: "🦷 مغامرة الضرس البطل",
+                startBtnText: "ابدأ اللعبة 🚀",
+                howToPlayBtnText: "تعليمات اللعب",
+                dentalTipsBtnText: "نصائح العناية بالأسنان",
+                badgesBtnText: "الإنجازات",
+                settingsText: "الإعدادات",
+                scoreLabel: "النقاط:",
+                bestLabel: "الأفضل:",
+                levelLabel: "المستوى:",
+                instructions: "حرك الضرس لجمع الفرش وغسول الفم وتفادي البكتيريا!",
+                gameOver: "انتهت اللعبة! 🦠",
+                finalScore: "النتيجة النهائية: ",
+                restartText: "اضغط Enter أو انقر لإعادة المحاولة",
+                settingsTitle: "الإعدادات",
+                badgesTitle: "🏅 الإنجازات الطبية",
+                howModalTitle: "📖 تعليمات اللعب",
+                tipsModalTitle: "💡 نصائح العناية بالأسنان",
+                closeText: "إغلاق",
+                levelUpText: "🎉 مبروك! أسنانك أصبحت أقوى وأكثر صحة!",
+                howToPlayItems: {
+                    move: "حرك الضرس يميناً ويساراً بالماوس أو الأسهم.",
+                    brush: "اجمع فرش الأسنان لزيادة النقاط وترقية مستواك.",
+                    shield: "التقط الدرع للحماية المؤقتة ضد البكتيريا.",
+                    mouthwash: "غسول الفم: يقضي على كل البكتيريا الموجودة فوراً!",
+                    bacteria: "تفادى البكتيريا والملوثات لكي لا تخسر!"
+                },
+                dentalTipsData: {
+                    tipGeneral1: "اغسل أسنانك مرتين يومياً لمدة دقيقتين على الأقل بمعجون يحتوي على الفلورايد.",
+                    tipGeneral2: "استخدم خيط الأسنان الطبي يومياً لإزالة البواقي بين الأسنان.",
+                    tipGeneral3: "قم بزيارة طبيب الأسنان دورياً كل 6 أشهر للاطمئنان والتنظيف.",
+                    tipKids1: "علم أطفالك التفريش بحركات دائرية لطيفة وتحت إشراف الكبار.",
+                    tipKids2: "قلل من السكريات والمشروبات الغازية والعصائر المحلاة قبل النوم مباشرة.",
+                    tipKids3: "استبدل فرشاة الأسنان لكل طفل كل 3 أشهر بانتظام أو بعد التعافي من الأمراض."
+                },
+                badgesData: {
+                    brushMaster: "فارس الفرشاة (اجمع 50 فرشاة)",
+                    shieldHero: "درع الحماية (التقط 5 دروع)",
+                    topScorer: "ملك الأسنان (سجل 200 نقطة)"
+                },
+                toastUnlock: "🏆 تم فتح إنجاز جديد!",
+                tips: [
+                    "💡 نصيحة: اغسل أسنانك مرتين يومياً على الأقل لمدة دقيقتين.",
+                    "💡 نصيحة: استخدم خيط الأسنان الطبي يومياً لإزالة البواقي بين الأسنان.",
+                    "💡 نصيحة: استبدل فرشاة أسنانك كل 3 إلى 4 أشهر بانتظام.",
+                    "💡 نصيحة: قلل من السكريات والمشروبات الغازية لحماية مينا الأسنان.",
+                    "💡 نصيحة: قم بزيارة طبيب الأسنان دورياً كل 6 أشهر للاطمئنان.",
+                    "💡 نصيحة: شرب الماء بعد الأكل يساعد في تقليل الحموضة وتفادي التسوس."
+                ]
+            },
+            en: {
+                title: "Tooth Hero Adventure | MGMR Dentistry",
+                h1: "🦷 Tooth Hero Adventure",
+                startBtnText: "Start Game 🚀",
+                howToPlayBtnText: "How to Play",
+                dentalTipsBtnText: "Dental Care Tips",
+                badgesBtnText: "Achievements",
+                settingsText: "Settings",
+                scoreLabel: "Score:",
+                bestLabel: "Best:",
+                levelLabel: "Level:",
+                instructions: "Move tooth to collect brushes & mouthwash, avoid bacteria!",
+                gameOver: "Game Over! 🦠",
+                finalScore: "Final Score: ",
+                restartText: "Press Enter or Click to Restart",
+                settingsTitle: "Settings",
+                badgesTitle: "🏅 Medical Achievements",
+                howModalTitle: "📖 How to Play",
+                tipsModalTitle: "💡 Dental Care Tips",
+                closeText: "Close",
+                levelUpText: "🎉 Awesome! Your teeth are getting stronger!",
+                howToPlayItems: {
+                    move: "Move tooth left & right using mouse or arrows.",
+                    brush: "Collect toothbrushes to earn points & level up.",
+                    shield: "Catch shields for temporary protection.",
+                    mouthwash: "Mouthwash: Instantly clears all bacteria on screen!",
+                    bacteria: "Avoid bacteria and germs to stay safe!"
+                },
+                dentalTipsData: {
+                    tipGeneral1: "Brush your teeth twice daily for at least 2 minutes with fluoride toothpaste.",
+                    tipGeneral2: "Use dental floss daily to remove food trapped between teeth.",
+                    tipGeneral3: "Visit your dentist regularly every 6 months for check-ups.",
+                    tipKids1: "Teach kids to brush gently in circular motions under adult supervision.",
+                    tipKids2: "Limit sugary snacks, sodas, and sweet juices especially before bedtime.",
+                    tipKids3: "Replace toothbrushes every 3 months or after recovering from illness."
+                },
+                badgesData: {
+                    brushMaster: "Brush Knight (Collect 50 brushes)",
+                    shieldHero: "Shield Hero (Catch 5 shields)",
+                    topScorer: "Tooth King (Score 200+ points)"
+                },
+                toastUnlock: "🏆 Achievement Unlocked!",
+                tips: [
+                    "💡 Tip: Brush your teeth at least twice a day for two minutes.",
+                    "💡 Tip: Use dental floss daily to remove food trapped between teeth.",
+                    "💡 Tip: Replace your toothbrush every 3 to 4 months regularly.",
+                    "💡 Tip: Reduce sugary snacks and sodas to protect tooth enamel.",
+                    "💡 Tip: Visit your dentist regularly every 6 months for check-ups.",
+                    "💡 Tip: Drinking water after meals helps reduce acidity and prevent decay."
+                ]
+            }
+        };
+
+        function applyLanguage(lang) {
+            currentLang = lang;
+            localStorage.setItem("game_lang", lang);
+            let t = translations[lang];
+
+            document.getElementById("htmlRoot").setAttribute("lang", lang);
+            document.getElementById("htmlRoot").setAttribute("dir", lang === 'ar' ? 'rtl' : 'ltr');
+            document.getElementById("pageTitle").innerText = t.title;
+            document.getElementById("gameTitle").innerText = t.h1;
+            document.getElementById("startTitle").innerText = t.h1;
+            document.getElementById("startBtn").innerText = t.startBtnText;
+            document.getElementById("howToPlayBtnText").innerText = t.howToPlayBtnText;
+            document.getElementById("dentalTipsBtnText").innerText = t.dentalTipsBtnText;
+            document.getElementById("badgesBtnText").innerText = t.badgesBtnText;
+            document.getElementById("settingsBtnText").innerText = t.settingsText;
+            document.getElementById("scoreText").innerText = "⭐ " + t.scoreLabel;
+            document.getElementById("bestText").innerText = t.bestLabel;
+            document.getElementById("levelText").innerText = t.levelLabel;
+            document.getElementById("instructionText").innerText = t.instructions;
+            document.getElementById("setModalTitle").innerText = t.settingsTitle;
+            document.getElementById("badgesTitle").innerText = t.badgesTitle;
+            document.getElementById("howModalTitle").innerText = t.howModalTitle;
+            document.getElementById("tipsModalTitle").innerText = t.tipsModalTitle;
+            document.getElementById("closeHowBtn").innerText = t.closeText;
+            document.getElementById("closeTipsBtn").innerText = t.closeText;
+            document.getElementById("closeBadgeBtn").innerText = t.closeText;
+            document.getElementById("closeSetBtn").innerText = t.closeText;
+        }
+
+        window.onload = function() {
+            applyLanguage(currentLang);
+        };
+
+        function startGame() {
+            initAudio();
+            document.getElementById("startModal").style.display = "none";
+            gameStarted = true;
+            restartGame();
+        }
+
+        function openSettings() {
+            document.getElementById("settingsModal").style.display = "flex";
+        }
+
+        function openSettingsFromStart() {
+            document.getElementById("settingsModal").style.display = "flex";
+        }
+
+        function closeSettings() {
+            document.getElementById("settingsModal").style.display = "none";
+        }
+
+        function switchLang(lang) {
+            applyLanguage(lang);
+            closeSettings();
+        }
+
+        const toothImg = new Image();
+        toothImg.src = "tooth.png";
+
+        const brushImg = new Image();
+        brushImg.src = "brush.png";
+
+        const bacteriaImg = new Image();
+        bacteriaImg.src = "bacteria.png";
+
+        const shieldImg = new Image();
+        shieldImg.src = "shield.png";
+
+        const cloudImg = new Image();
+        cloudImg.src = "cloud.png";
+
+        const mouthwashImg = new Image();
+        mouthwashImg.src = "mouthwash.png";
+
+        let tooth = { x: 170, y: 390, width: 60, height: 60, speed: 7, dx: 0, hasShield: false };
+        let items = [];
+        let particles = [];
+        let score = 0;
+        let level = 1;
+        let gameOver = false;
+        let gameRunning = false;
+        let spawnTimer = 0;
+        
+        let shieldTimer = 0;
+        const shieldDuration = 10000;
+        let levelUpMessage = "";
+        let levelUpTimer = 0;
+        let animationFrameId = null;
+
+        let clouds = [
+            { x: 30, y: 60, width: 80, height: 40, speed: 0.3 },
+            { x: 220, y: 160, width: 100, height: 50, speed: 0.2 },
+            { x: 120, y: 280, width: 70, height: 35, speed: 0.4 }
+        ];
+
+        function createParticles(x, y, color, count = 12) {
+            for (let i = 0; i < count; i++) {
+                let angle = Math.random() * Math.PI * 2;
+                let speed = 1.5 + Math.random() * 3.5;
+                particles.push({
+                    x: x,
+                    y: y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    size: 2 + Math.random() * 4,
+                    color: color,
+                    alpha: 1,
+                    life: 20 + Math.random() * 15
+                });
+            }
+        }
+
+        window.addEventListener("keydown", (e) => {
+            if (!gameStarted) return;
+            if (e.key === "ArrowRight") tooth.dx = tooth.speed;
+            if (e.key === "ArrowLeft") tooth.dx = -tooth.speed;
+            if (e.key === "Enter" && gameOver) restartGame();
+        });
+
+        window.addEventListener("keyup", () => { tooth.dx = 0; });
+
+        window.addEventListener("mousemove", (e) => {
+            if (!gameStarted || !gameRunning) return;
+            let rect = canvas.getBoundingClientRect();
+            let mouseX = e.clientX - rect.left;
+            tooth.x = mouseX - tooth.width / 2;
+        });
+
+        function restartGame() {
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+            }
+
+            document.getElementById("gameOverScreen").style.display = "none";
+
+            score = 0;
+            level = 1;
+            items = [];
+            particles = [];
+            gameOver = false;
+            gameRunning = true;
+            tooth.x = 170;
+            tooth.hasShield = false;
+            spawnTimer = 0;
+            levelUpMessage = "";
+            document.getElementById("scoreVal").innerText = score;
+            document.getElementById("levelVal").innerText = level;
+            
+            loop();
+        }
+
+        function spawnItem() {
+            let rand = Math.random();
+            let type;
+            if (!tooth.hasShield && rand < 0.025) {
+                type = "shield";
+            } else if (rand < 0.05) {
+                type = "mouthwash";
+            } else if (rand < 0.65) {
+                type = "toothbrush";
+            } else {
+                type = "bacteria";
+            }
+
+            // تعديل تسارع السرعة ليصبح تدريجياً وهادئاً جداً
+            let difficultyMultiplier = 1 + Math.floor(score / 80) * 0.1;
+
+            items.push({
+                x: Math.random() * (canvas.width - 40),
+                y: -40,
+                width: 40,
+                height: 40,
+                speed: (2.0 + Math.random() * 1.2) * difficultyMultiplier,
+                type: type
+            });
+        }
+
+        function update() {
+            if (!gameStarted || !gameRunning || gameOver) return;
+
+            tooth.x += tooth.dx;
+            if (tooth.x < 0) tooth.x = 0;
+            if (tooth.x + tooth.width > canvas.width) tooth.x = canvas.width - tooth.width;
+
+            clouds.forEach(cloud => {
+                cloud.x -= cloud.speed;
+                if (cloud.x + cloud.width < 0) {
+                    cloud.x = canvas.width + 60;
+                    cloud.y = Math.random() * 320;
+                }
+            });
+
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.alpha -= 1 / p.life;
+                if (p.alpha <= 0) {
+                    particles.splice(i, 1);
+                }
+            }
+
+            if (tooth.hasShield && Date.now() >= shieldTimer) {
+                tooth.hasShield = false;
+            }
+
+            let newLevel = 1;
+            if (score >= 250) {
+                newLevel = 3;
+                checkAchievement("topScorer", translations[currentLang].toastUnlock + " 👑 " + translations[currentLang].badgesData.topScorer);
+            } else if (score >= 120) {
+                newLevel = 2;
+            }
+
+            if (newLevel > level) {
+                level = newLevel;
+                document.getElementById("levelVal").innerText = level;
+                playSound('levelup');
+                createParticles(canvas.width / 2, canvas.height / 2, "#38bdf8", 30);
+                
+                levelUpMessage = translations[currentLang].levelUpText;
+                levelUpTimer = Date.now() + 2000;
+            }
+
+            spawnTimer++;
+            let spawnRate = Math.max(25, 45 - Math.floor(score / 40) * 2);
+            if (spawnTimer > spawnRate) {
+                spawnItem();
+                spawnTimer = 0;
+            }
+
+            for (let i = items.length - 1; i >= 0; i--) {
+                items[i].y += items[i].speed;
+
+                if (
+                    tooth.x < items[i].x + items[i].width &&
+                    tooth.x + tooth.width > items[i].x &&
+                    tooth.y < items[i].y + items[i].height &&
+                    tooth.y + tooth.height > items[i].y
+                ) {
+                    let centerX = items[i].x + items[i].width / 2;
+                    let centerY = items[i].y + items[i].height / 2;
+
+                    if (items[i].type === "toothbrush") {
+                        score += 10;
+                        totalBrushesCollected++;
+                        localStorage.setItem("tooth_total_brushes", totalBrushesCollected);
+
+                        if (totalBrushesCollected >= 50) {
+                            checkAchievement("brushMaster", translations[currentLang].toastUnlock + " 🦷 " + translations[currentLang].badgesData.brushMaster);
+                        }
+
+                        document.getElementById("scoreVal").innerText = score;
+                        playSound('score');
+                        
+                        createParticles(centerX, centerY, "#38bdf8", 14);
+                        createParticles(centerX, centerY, "#facc15", 8);
+
+                        if (score > bestScore) {
+                            bestScore = score;
+                            localStorage.setItem("tooth_best_score", bestScore);
+                            document.getElementById("bestVal").innerText = bestScore;
+                        }
+
+                        items.splice(i, 1);
+                        continue;
+                    } else if (items[i].type === "shield") {
+                        tooth.hasShield = true;
+                        shieldTimer = Date.now() + shieldDuration;
+                        totalShieldsCollected++;
+                        localStorage.setItem("tooth_total_shields", totalShieldsCollected);
+
+                        if (totalShieldsCollected >= 5) {
+                            checkAchievement("shieldHero", translations[currentLang].toastUnlock + " 🛡️ " + translations[currentLang].badgesData.shieldHero);
+                        }
+
+                        playSound('shield');
+                        createParticles(centerX, centerY, "#10b981", 20);
+                        items.splice(i, 1);
+                        continue;
+                    } else if (items[i].type === "mouthwash") {
+                        playSound('mouthwash');
+                        createParticles(centerX, centerY, "#38bdf8", 40);
+
+                        let bacteriaCount = 0;
+                        items = items.filter(it => {
+                            if (it.type === "bacteria") {
+                                bacteriaCount++;
+                                return false;
+                            }
+                            return true;
+                        });
+
+                        score += bacteriaCount * 15 + 20;
+                        document.getElementById("scoreVal").innerText = score;
+
+                        if (score > bestScore) {
+                            bestScore = score;
+                            localStorage.setItem("tooth_best_score", bestScore);
+                            document.getElementById("bestVal").innerText = bestScore;
+                        }
+
+                        items.splice(i, 1);
+                        continue;
+                    } else if (items[i].type === "bacteria") {
+                        if (tooth.hasShield) {
+                            tooth.hasShield = false;
+                            playSound('shield');
+                            createParticles(centerX, centerY, "#ef4444", 15);
+                            createParticles(centerX, centerY, "#a855f7", 10);
+                            items.splice(i, 1);
+                        } else {
+                            createParticles(centerX, centerY, "#ef4444", 25);
+                            gameOver = true;
+                            gameRunning = false;
+                            playSound('hit');
+
+                            let t = translations[currentLang];
+                            let tipsList = t.tips;
+                            let randomTip = tipsList[Math.floor(Math.random() * tipsList.length)];
+
+                            document.getElementById("goTitle").innerText = t.gameOver;
+                            document.getElementById("finalScoreVal").innerText = score;
+                            document.getElementById("tipContent").innerText = randomTip;
+                            document.getElementById("restartPrompt").innerText = t.restartText;
+                            document.getElementById("gameOverScreen").style.display = "flex";
+                        }
+                    }
+                }
+
+                if (items[i] && items[i].y > canvas.height) {
+                    items.splice(i, 1);
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            let skyGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            skyGradient.addColorStop(0, "#0284c7");
+            skyGradient.addColorStop(1, "#0f172a");
+            ctx.fillStyle = skyGradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            clouds.forEach(cloud => {
+                if (cloudImg.complete && cloudImg.naturalWidth !== 0) {
+                    ctx.drawImage(cloudImg, cloud.x, cloud.y, cloud.width, cloud.height);
+                } else {
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+                    ctx.beginPath();
+                    ctx.roundRect(cloud.x, cloud.y, cloud.width, cloud.height, 15);
+                    ctx.fill();
+                }
+            });
+
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = Math.max(0, p.alpha);
+                ctx.fillStyle = p.color;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.restore();
+            });
+
+            if (gameOver) return;
+
+            if (tooth.hasShield) {
+                let timeLeft = shieldTimer - Date.now();
+                let progress = timeLeft / shieldDuration;
+
+                ctx.strokeStyle = "#38bdf8";
+                ctx.lineWidth = 4;
+                ctx.beginPath();
+                ctx.arc(tooth.x + tooth.width / 2, tooth.y + tooth.height / 2, tooth.width / 1.2, 0, Math.PI * 2);
+                ctx.stroke();
+
+                ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
+                ctx.fillRect(tooth.x, tooth.y - 10, tooth.width, 6);
+                ctx.fillStyle = "#38bdf8";
+                ctx.fillRect(tooth.x, tooth.y - 10, tooth.width * progress, 6);
+            }
+
+            if (toothImg.complete && toothImg.naturalWidth !== 0) {
+                ctx.drawImage(toothImg, tooth.x, tooth.y, tooth.width, tooth.height);
+            } else {
+                ctx.fillStyle = "#ffffff";
+                ctx.beginPath();
+                ctx.roundRect(tooth.x + 5, tooth.y + 15, tooth.width - 10, tooth.height - 15, [10, 10, 20, 20]);
+                ctx.fill();
+            }
+
+            items.forEach(item => {
+                if (item.type === "toothbrush") {
+                    if (brushImg.complete && brushImg.naturalWidth !== 0) {
+                        ctx.drawImage(brushImg, item.x, item.y, item.width, item.height);
+                    } else {
+                        ctx.fillStyle = "#38bdf8";
+                        ctx.fillRect(item.x + 16, item.y + 10, 8, 25);
+                        ctx.fillStyle = "#f43f5e";
+                        ctx.fillRect(item.x + 11, item.y + 2, 18, 10);
+                    }
+                } else if (item.type === "shield") {
+                    if (shieldImg.complete && shieldImg.naturalWidth !== 0) {
+                        ctx.drawImage(shieldImg, item.x, item.y, item.width, item.height);
+                    } else {
+                        ctx.fillStyle = "#10b981";
+                        ctx.fillRect(item.x + 10, item.y + 5, 20, 30);
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "12px Tahoma";
+                        ctx.fillText("🛡️", item.x + 10, item.y + 25);
+                    }
+                } else if (item.type === "mouthwash") {
+                    if (mouthwashImg.complete && mouthwashImg.naturalWidth !== 0) {
+                        ctx.drawImage(mouthwashImg, item.x, item.y, item.width, item.height);
+                    } else {
+                        ctx.fillStyle = "#38bdf8";
+                        ctx.beginPath();
+                        ctx.roundRect(item.x + 8, item.y + 4, 24, 32, 8);
+                        ctx.fill();
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "14px Tahoma";
+                        ctx.fillText("💧", item.x + 12, item.y + 26);
+                    }
+                } else {
+                    if (bacteriaImg.complete && bacteriaImg.naturalWidth !== 0) {
+                        ctx.drawImage(bacteriaImg, item.x, item.y, item.width, item.height);
+                    } else {
+                        ctx.fillStyle = "#ef4444";
+                        ctx.beginPath();
+                        ctx.arc(item.x + 20, item.y + 20, 16, 0, Math.PI * 2);
+                        ctx.fill();
+                    }
+                }
+            });
+
+            if (Date.now() < levelUpTimer && levelUpMessage) {
+                ctx.fillStyle = "rgba(56, 189, 248, 0.9)";
+                ctx.beginPath();
+                ctx.roundRect(40, canvas.height / 2 - 40, canvas.width - 80, 50, 12);
+                ctx.fill();
+
+                ctx.fillStyle = "#0f172a";
+                ctx.font = "bold 13px Tahoma";
+                ctx.textAlign = "center";
+                ctx.fillText(levelUpMessage, canvas.width / 2, canvas.height / 2 - 10);
+                ctx.textAlign = "start";
+            }
+        }
+
+        function loop() {
+            if (!gameStarted) return;
+            update();
+            draw();
+            if (gameRunning || gameOver) {
+                animationFrameId = requestAnimationFrame(loop);
+            }
+        }
+
+        document.getElementById("gameOverScreen").addEventListener("click", () => {
+            if (gameOver && gameStarted) restartGame();
+        });
+    </script>
+</body>
+</html>

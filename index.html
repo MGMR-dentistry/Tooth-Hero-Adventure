@@ -402,7 +402,7 @@
             } else {
                 pauseScreen.style.display = "none";
                 pauseBtn.innerText = "⏸️";
-                loop(); // استئناف حلقة اللعبة
+                loop();
             }
         }
 
@@ -891,6 +891,7 @@
                 tooth.hasShield = false;
             }
 
+            // تحديد المستويات بشكل آمن وسليم دون حدوث تكرار أو توقف
             let newLevel = 1;
             if (score >= 250) {
                 newLevel = 3;
@@ -1113,7 +1114,7 @@
                     }
                 } else if (item.type === "shield") {
                     if (shieldImg.complete && shieldImg.naturalWidth !== 0) {
-                        ctx.drawImage(shieldImg, item.x,Item.y, item.width, item.height);
+                        ctx.drawImage(shieldImg, item.x, item.y, item.width, item.height);
                     } else {
                         ctx.fillStyle = "#10b981";
                         ctx.fillRect(item.x + 10, item.y + 5, 20, 30);
@@ -1157,7 +1158,7 @@
                 ctx.fill();
 
                 ctx.fillStyle = "#0f172a";
-                ctx.font = "bold 12pxTahoma";
+                ctx.font = "bold 12px Tahoma";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText(levelUpMessage, canvas.width / 2, boxY + boxHeight / 2);

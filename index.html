@@ -134,7 +134,7 @@
             flex-direction: column;
             gap: 6px;
             margin: 10px 0;
-            max-height: 160px;
+            max-height: 220px;
             overflow-y: auto;
             text-align: left;
             width: 100%;
@@ -407,12 +407,16 @@
         }
 
         let achievements = JSON.parse(localStorage.getItem("tooth_achievements")) || {
-            brushMaster: false,
-            shieldHero: false,
-            topScorer: false
+            brushMaster: false,     
+            flossMaster: false,     
+            mouthwashHero: false,   
+            shieldHero: false,      
+            topScorer: false        
         };
 
         let totalBrushesCollected = parseInt(localStorage.getItem("tooth_total_brushes")) || 0;
+        let totalFlossCollected = parseInt(localStorage.getItem("tooth_total_floss")) || 0;
+        let totalMouthwashCollected = parseInt(localStorage.getItem("tooth_total_mouthwash")) || 0;
         let totalShieldsCollected = parseInt(localStorage.getItem("tooth_total_shields")) || 0;
 
         function checkAchievement(id, titleText) {
@@ -421,6 +425,7 @@
                 localStorage.setItem("tooth_achievements", JSON.stringify(achievements));
                 showToast(titleText);
                 playSound('levelup');
+                if (navigator.vibrate) navigator.vibrate([100, 50, 100]);
             }
         }
 
@@ -467,6 +472,14 @@
                 <div class="badge-item ${achievements.brushMaster ? 'unlocked' : ''}">
                     <span>🦷 ${t.brushMaster}</span>
                     <span>${achievements.brushMaster ? '✅' : '🔒'}</span>
+                </div>
+                <div class="badge-item ${achievements.flossMaster ? 'unlocked' : ''}">
+                    <span>🧵 ${t.flossMaster}</span>
+                    <span>${achievements.flossMaster ? '✅' : '🔒'}</span>
+                </div>
+                <div class="badge-item ${achievements.mouthwashHero ? 'unlocked' : ''}">
+                    <span>💧 ${t.mouthwashHero}</span>
+                    <span>${achievements.mouthwashHero ? '✅' : '🔒'}</span>
                 </div>
                 <div class="badge-item ${achievements.shieldHero ? 'unlocked' : ''}">
                     <span>🛡️ ${t.shieldHero}</span>
@@ -572,11 +585,11 @@
                 finalScore: "النتيجة النهائية: ",
                 restartText: "انقر لإعادة المحاولة",
                 settingsTitle: "الإعدادات",
-                badgesTitle: "🏅 الإنجازات الطبية",
+                badgesTitle: "🏅 الإنجازات الطبية المتقدمة",
                 howModalTitle: "📖 تعليمات اللعب",
                 tipsModalTitle: "💡 نصائح العناية بالأسنان",
                 closeText: "إغلاق",
-                levelUpText: "🎉 مبروك! أسنانك أصبحت أقوى!",
+                levelUpText: "🎉 ممتاز! وصلت للمستوى الخارق ",
                 howToPlayItems: {
                     move: "حرك الضرس يميناً ويساراً بإصبعك على الشاشة.",
                     brush: "اجمع فرش الأسنان لزيادة النقاط.",
@@ -595,8 +608,10 @@
                 },
                 badgesData: {
                     brushMaster: "فارس الفرشاة (اجمع 50 فرشاة)",
+                    flossMaster: "خبير الخيط الطبي (اجمع 25 خيط)",
+                    mouthwashHero: "بطل الغسول (استخدم 10 عبوات)",
                     shieldHero: "درع الحماية (التقط 5 دروع)",
-                    topScorer: "ملك الأسنان (سجل 200 نقطة)"
+                    topScorer: "ملك الأسنان (سجل 250 نقطة)"
                 },
                 toastUnlock: "🏆 تم فتح إنجاز جديد!",
                 tips: [
@@ -626,11 +641,11 @@
                 finalScore: "Final Score: ",
                 restartText: "Tap to Restart",
                 settingsTitle: "Settings",
-                badgesTitle: "🏅 Medical Achievements",
+                badgesTitle: "🏅 Advanced Medical Achievements",
                 howModalTitle: "📖 How to Play",
                 tipsModalTitle: "💡 Dental Care Tips",
                 closeText: "Close",
-                levelUpText: "🎉 Awesome! Your teeth are stronger!",
+                levelUpText: "🎉 Awesome! Milestone Level ",
                 howToPlayItems: {
                     move: "Drag your finger left & right to move the tooth.",
                     brush: "Collect toothbrushes to earn points.",
@@ -649,8 +664,10 @@
                 },
                 badgesData: {
                     brushMaster: "Brush Knight (Collect 50 brushes)",
+                    flossMaster: "Floss Master (Collect 25 flosses)",
+                    mouthwashHero: "Mouthwash Hero (Use 10 mouthwashes)",
                     shieldHero: "Shield Hero (Catch 5 shields)",
-                    topScorer: "Tooth King (Score 200+ points)"
+                    topScorer: "Tooth King (Score 250+ points)"
                 },
                 toastUnlock: "🏆 Achievement Unlocked!",
                 tips: [
@@ -891,27 +908,27 @@
                 tooth.hasShield = false;
             }
 
-            // تحديد المستويات بشكل آمن وسليم دون حدوث تكرار أو توقف
-            let newLevel = 1;
-            if (score >= 250) {
-                newLevel = 3;
-                checkAchievement("topScorer", translations[currentLang].toastUnlock + " 👑 " + translations[currentLang].badgesData.topScorer);
-            } else if (score >= 120) {
-                newLevel = 2;
-            }
-
-            if (newLevel > level) {
-                level = newLevel;
+            // تقدم المستويات باستمرار، وتظهر رسالة الاحتفال الكبرى كل 5 مستويات (5، 10، 15...)
+            let calculatedLevel = Math.floor(score / 100) + 1;
+            if (calculatedLevel > level) {
+                level = calculatedLevel;
                 document.getElementById("levelVal").innerText = level;
                 playSound('levelup');
                 createParticles(canvas.width / 2, canvas.height / 2, "#38bdf8", 20);
                 
-                levelUpMessage = translations[currentLang].levelUpText;
-                levelUpTimer = Date.now() + 2000;
+                // إظهار رسالة الاحتفال الكبرى فقط عند كل مضاعفات الرقم 5
+                if (level % 5 === 0) {
+                    levelUpMessage = translations[currentLang].levelUpText + level + "! 🌟";
+                    levelUpTimer = Date.now() + 2500;
+                }
+            }
+
+            if (score >= 250) {
+                checkAchievement("topScorer", translations[currentLang].toastUnlock + " 👑 " + translations[currentLang].badgesData.topScorer);
             }
 
             spawnTimer++;
-            let spawnRate = Math.max(25, 45 - Math.floor(score / 40) * 2);
+            let spawnRate = Math.max(20, 45 - Math.floor(score / 40) * 2);
             if (spawnTimer > spawnRate) {
                 spawnItem();
                 spawnTimer = 0;
@@ -952,6 +969,13 @@
                         continue;
                     } else if (items[i].type === "floss") {
                         score += 15;
+                        totalFlossCollected++;
+                        localStorage.setItem("tooth_total_floss", totalFlossCollected);
+
+                        if (totalFlossCollected >= 25) {
+                            checkAchievement("flossMaster", translations[currentLang].toastUnlock + " 🧵 " + translations[currentLang].badgesData.flossMaster);
+                        }
+
                         document.getElementById("scoreVal").innerText = score;
                         playSound('floss');
                         createParticles(centerX, centerY, "#a855f7", 14);
@@ -979,6 +1003,13 @@
                         items.splice(i, 1);
                         continue;
                     } else if (items[i].type === "mouthwash") {
+                        totalMouthwashCollected++;
+                        localStorage.setItem("tooth_total_mouthwash", totalMouthwashCollected);
+
+                        if (totalMouthwashCollected >= 10) {
+                            checkAchievement("mouthwashHero", translations[currentLang].toastUnlock + " 💧 " + translations[currentLang].badgesData.mouthwashHero);
+                        }
+
                         playSound('mouthwash');
                         createParticles(centerX, centerY, "#38bdf8", 25);
 
@@ -1013,6 +1044,7 @@
                             gameOver = true;
                             gameRunning = false;
                             playSound('hit');
+                            if (navigator.vibrate) navigator.vibrate(300);
 
                             let t = translations[currentLang];
                             let tipsList = t.tips;

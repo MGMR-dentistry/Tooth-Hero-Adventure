@@ -356,7 +356,7 @@
             <h2 id="goTitle">Game Over! 🦠</h2>
             <div id="finalScoreText">Final Score: <span id="finalScoreVal">0</span></div>
             <div class="tip-box" id="tipContent">💡 Tip goes here</div>
-            <div id="restartPrompt">Press Enter or Click to Restart</div>
+            <div id="restartPrompt">Tap to Restart</div>
         </div>
 
         <canvas id="gameCanvas" width="400" height="480"></canvas>
@@ -548,7 +548,7 @@
                 howModalTitle: "📖 تعليمات اللعب",
                 tipsModalTitle: "💡 نصائح العناية بالأسنان",
                 closeText: "إغلاق",
-                levelUpText: "🎉 مبروك! أسنانك أصبحت أقوى وأكثر صحة!",
+                levelUpText: "🎉 مبروك! أسنانك أصبحت أقوى!",
                 howToPlayItems: {
                     move: "حرك الضرس يميناً ويساراً بإصبعك على الشاشة.",
                     brush: "اجمع فرش الأسنان لزيادة النقاط وترقية مستواك.",
@@ -599,7 +599,7 @@
                 howModalTitle: "📖 How to Play",
                 tipsModalTitle: "💡 Dental Care Tips",
                 closeText: "Close",
-                levelUpText: "🎉 Awesome! Your teeth are getting stronger!",
+                levelUpText: "🎉 Awesome! Your teeth are stronger!",
                 howToPlayItems: {
                     move: "Drag your finger left & right to move the tooth.",
                     brush: "Collect toothbrushes to earn points & level up.",
@@ -657,7 +657,7 @@
             document.getElementById("tipsModalTitle").innerText = t.tipsModalTitle;
             document.getElementById("closeHowBtn").innerText = t.closeText;
             document.getElementById("closeTipsBtn").innerText = t.closeText;
-            document.getElementById("closeBadgeBtn").innerText, t.closeText;
+            document.getElementById("closeBadgeBtn").innerText = t.closeText;
             document.getElementById("closeSetBtn").innerText = t.closeText;
         }
 
@@ -1085,16 +1085,24 @@
             });
 
             if (Date.now() < levelUpTimer && levelUpMessage) {
-                ctx.fillStyle = "rgba(56, 189, 248, 0.9)";
+                // تعديل عرض المستطيل ليصبح متجاوباً مع عرض الشاشة تماماً
+                let boxX = 20;
+                let boxWidth = canvas.width - 40;
+                let boxHeight = 46;
+                let boxY = canvas.height / 2 - 25;
+
+                ctx.fillStyle = "rgba(56, 189, 248, 0.95)";
                 ctx.beginPath();
-                ctx.roundRect(40, canvas.height / 2 - 40, canvas.width - 80, 50, 12);
+                ctx.roundRect(boxX, boxY, boxWidth, boxHeight, 12);
                 ctx.fill();
 
                 ctx.fillStyle = "#0f172a";
-                ctx.font = "bold 13px Tahoma";
-                ctx.textAlign, "center";
-                ctx.fillText(levelUpMessage, canvas.width / 2, canvas.height / 2 - 10);
+                ctx.font = "bold 12px Tahoma";
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillText(levelUpMessage, canvas.width / 2, boxY + boxHeight / 2);
                 ctx.textAlign = "start";
+                ctx.textBaseline = "alphabetic";
             }
         }
 

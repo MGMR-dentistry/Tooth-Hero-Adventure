@@ -11,41 +11,46 @@
         }
         body {
             margin: 0;
-            padding: 0;
+            padding: 5px;
             background: radial-gradient(circle at center, #1e1b4b 0%, #0f172a 100%);
             font-family: 'Tahoma', sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            overflow: hidden;
+            min-height: 100vh;
+            overflow-x: hidden;
             color: white;
         }
         .game-container {
             position: relative;
             background: rgba(15, 23, 42, 0.7);
-            padding: 15px;
-            border-radius: 24px;
+            padding: 10px;
+            border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
             border: 1px solid rgba(56, 189, 248, 0.2);
             backdrop-filter: blur(10px);
+            width: 100%;
+            max-width: 380px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
         }
         .header-container {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            width: 400px;
-            margin-bottom: 10px;
-            padding: 0 5px;
+            width: 100%;
+            margin-bottom: 8px;
+            padding: 0 2px;
         }
         .header-btns {
             display: flex;
-            gap: 6px;
+            gap: 5px;
         }
         h1 {
             margin: 0;
-            font-size: 19px;
+            font-size: 16px;
             color: #38bdf8;
             text-shadow: 0 0 12px rgba(56, 189, 248, 0.6);
             font-weight: 800;
@@ -54,65 +59,63 @@
             background: rgba(30, 41, 59, 0.8);
             border: 1.5px solid rgba(56, 189, 248, 0.4);
             color: #38bdf8;
-            font-size: 14px;
+            font-size: 13px;
             cursor: pointer;
-            padding: 5px 8px;
-            border-radius: 12px;
+            padding: 4px 8px;
+            border-radius: 10px;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .settings-btn:hover {
-            background: #38bdf8;
-            color: #0f172a;
-            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6);
-            transform: scale(1.05);
         }
         .stats-bar {
             display: flex;
             justify-content: space-between;
-            width: 400px;
-            margin-bottom: 10px;
+            width: 100%;
+            margin-bottom: 8px;
+            gap: 5px;
         }
         .score-board, .best-board, .level-board {
             background: rgba(30, 41, 59, 0.6);
-            padding: 6px 12px;
-            border-radius: 14px;
+            padding: 5px 8px;
+            border-radius: 12px;
             border: 1.5px solid rgba(56, 189, 248, 0.3);
-            font-size: 13px;
+            font-size: 11px;
             font-weight: 700;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+            white-space: nowrap;
         }
         canvas {
             border: 3px solid rgba(56, 189, 248, 0.4);
             background: linear-gradient(to bottom, #0284c7, #0f172a);
             box-shadow: 0 0 25px rgba(56, 189, 248, 0.2);
-            border-radius: 16px;
+            border-radius: 14px;
             display: block;
+            width: 100%;
+            max-width: 350px;
+            height: auto;
         }
         .instructions {
-            margin-top: 8px;
-            font-size: 11px;
+            margin-top: 6px;
+            font-size: 10px;
             color: #94a3b8;
             text-align: center;
-            max-width: 400px;
+            width: 100%;
         }
 
         #achievementToast {
             position: absolute;
-            top: 75px;
+            top: 65px;
             left: 50%;
-            transform: translateX(-50%) translateY(-50px);
+            transform: translateX(-50%) translateY(-40px);
             background: linear-gradient(135deg, #10b981 0%, #047857 100%);
             color: white;
-            padding: 10px 20px;
-            border-radius: 16px;
-            font-size: 13px;
+            padding: 8px 15px;
+            border-radius: 14px;
+            font-size: 12px;
             font-weight: bold;
             box-shadow: 0 5px 20px rgba(16, 185, 129, 0.5);
             z-index: 15;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             opacity: 0;
             transition: all 0.4s ease;
             pointer-events: none;
@@ -125,21 +128,22 @@
         .badge-list {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin: 12px 0;
-            max-height: 180px;
+            gap: 6px;
+            margin: 10px 0;
+            max-height: 160px;
             overflow-y: auto;
             text-align: left;
+            width: 100%;
         }
         .badge-item {
             background: rgba(30, 41, 59, 0.7);
             border: 1px solid rgba(56, 189, 248, 0.3);
-            padding: 8px 12px;
-            border-radius: 12px;
+            padding: 6px 10px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            font-size: 12px;
+            font-size: 11px;
         }
         .badge-item.unlocked {
             border-color: #10b981;
@@ -148,79 +152,80 @@
 
         .modal-body-content {
             text-align: left;
-            font-size: 12px;
+            font-size: 11px;
             color: #cbd5e1;
             display: flex;
             flex-direction: column;
-            gap: 8px;
-            margin: 12px 0;
-            max-height: 220px;
+            gap: 6px;
+            margin: 10px 0;
+            max-height: 180px;
             overflow-y: auto;
-            padding-right: 4px;
+            padding-right: 2px;
+            width: 100%;
         }
         .modal-item {
             display: flex;
             align-items: flex-start;
-            gap: 8px;
+            gap: 6px;
             background: rgba(30, 41, 59, 0.6);
-            padding: 6px 10px;
-            border-radius: 10px;
+            padding: 5px 8px;
+            border-radius: 8px;
             border: 1px solid rgba(56, 189, 248, 0.2);
-            line-height: 1.4;
+            line-height: 1.3;
         }
         .section-title {
             color: #38bdf8;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
-            margin-top: 6px;
+            margin-top: 4px;
             margin-bottom: 2px;
             border-bottom: 1px solid rgba(56, 189, 248, 0.3);
-            padding-bottom: 3px;
+            padding-bottom: 2px;
         }
 
         #gameOverScreen {
             position: absolute;
-            top: 65px;
-            left: 15px;
-            width: 400px;
-            height: 480px;
+            top: 55px;
+            left: 10px;
+            right: 10px;
+            bottom: 10px;
             background: rgba(15, 23, 42, 0.96);
-            border-radius: 16px;
+            border-radius: 14px;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
             z-index: 5;
-            padding: 20px;
+            padding: 15px;
             text-align: center;
             cursor: pointer;
         }
         #gameOverScreen h2 {
             color: #ef4444;
-            font-size: 24px;
-            margin: 0 0 10px 0;
+            font-size: 20px;
+            margin: 0 0 8px 0;
         }
         #finalScoreText {
             color: #38bdf8;
-            font-size: 16px;
+            font-size: 14px;
             font-weight: bold;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
         }
         .tip-box {
             background: rgba(30, 41, 59, 0.9);
             border: 2px solid rgba(56, 189, 248, 0.5);
-            padding: 12px 15px;
-            border-radius: 12px;
-            font-size: 13px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            font-size: 12px;
             color: #f8fafc;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             width: 100%;
-            line-height: 1.5;
+            line-height: 1.4;
             box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
         }
         #restartPrompt {
             color: #38bdf8;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: bold;
             animation: pulse 1.5s infinite;
         }
@@ -240,16 +245,17 @@
             align-items: center;
             justify-content: center;
             flex-direction: column;
+            padding: 15px;
         }
         .modal-content {
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-            padding: 22px;
-            border-radius: 20px;
+            padding: 18px;
+            border-radius: 18px;
             border: 2px solid rgba(56, 189, 248, 0.4);
             text-align: center;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6), 0 0 20px rgba(56, 189, 248, 0.2);
-            max-width: 360px;
-            width: 90%;
+            max-width: 330px;
+            width: 100%;
             animation: popIn 0.3s ease-out;
         }
         @keyframes popIn {
@@ -259,36 +265,27 @@
         .modal-content h2 {
             margin-top: 0;
             color: #38bdf8;
-            font-size: 18px;
-            margin-bottom: 12px;
+            font-size: 16px;
+            margin-bottom: 10px;
         }
         .btn-option {
             background: linear-gradient(135deg, #38bdf8 0%, #0284c7 100%);
             color: #0f172a;
             border: none;
-            padding: 9px 16px;
-            font-size: 14px;
+            padding: 8px 14px;
+            font-size: 13px;
             font-weight: 800;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
             margin: 4px 0;
             width: 100%;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(56, 189, 248, 0.4);
         }
-        .btn-option:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(56, 189, 248, 0.6);
-            background: linear-gradient(135deg, #7dd3fc 0%, #0284c7 100%);
-        }
         .btn-danger {
             background: linear-gradient(135deg, #f43f5e 0%, #be123c 100%);
             color: white;
             box-shadow: 0 4px 15px rgba(244, 63, 94, 0.4);
-        }
-        .btn-danger:hover {
-            background: linear-gradient(135deg, #fb7185 0%, #be123c 100%);
-            box-shadow: 0 6px 20px rgba(244, 63, 94, 0.6);
         }
     </style>
 </head>
@@ -306,7 +303,7 @@
     </div>
 
     <div id="howToPlayModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 380px;">
+        <div class="modal-content">
             <h2 id="howModalTitle">📖 How to Play</h2>
             <div class="modal-body-content" id="howToPlayTextContainer"></div>
             <button class="btn-option btn-danger" onclick="closeHowToPlayModal()" id="closeHowBtn">Close</button>
@@ -314,7 +311,7 @@
     </div>
 
     <div id="tipsModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 380px;">
+        <div class="modal-content">
             <h2 id="tipsModalTitle">💡 Dental Care Tips</h2>
             <div class="modal-body-content" id="tipsTextContainer"></div>
             <button class="btn-option btn-danger" onclick="closeTipsModal()" id="closeTipsBtn">Close</button>
@@ -322,7 +319,7 @@
     </div>
 
     <div id="badgesModal" class="modal" style="display: none;">
-        <div class="modal-content" style="max-width: 360px;">
+        <div class="modal-content">
             <h2 id="badgesTitle">🏅 Medical Achievements</h2>
             <div class="badge-list" id="badgeContainer"></div>
             <button class="btn-option btn-danger" onclick="closeBadgesModal()" id="closeBadgeBtn">Close</button>
@@ -545,7 +542,7 @@
                 instructions: "حرك الضرس لجمع الفرش وغسول الفم وتفادي البكتيريا!",
                 gameOver: "انتهت اللعبة! 🦠",
                 finalScore: "النتيجة النهائية: ",
-                restartText: "اضغط Enter أو انقر لإعادة المحاولة",
+                restartText: "انقر لإعادة المحاولة",
                 settingsTitle: "الإعدادات",
                 badgesTitle: "🏅 الإنجازات الطبية",
                 howModalTitle: "📖 تعليمات اللعب",
@@ -596,7 +593,7 @@
                 instructions: "Move tooth to collect brushes & mouthwash, avoid bacteria!",
                 gameOver: "Game Over! 🦠",
                 finalScore: "Final Score: ",
-                restartText: "Press Enter or Click to Restart",
+                restartText: "Tap to Restart",
                 settingsTitle: "Settings",
                 badgesTitle: "🏅 Medical Achievements",
                 howModalTitle: "📖 How to Play",
@@ -660,7 +657,7 @@
             document.getElementById("tipsModalTitle").innerText = t.tipsModalTitle;
             document.getElementById("closeHowBtn").innerText = t.closeText;
             document.getElementById("closeTipsBtn").innerText = t.closeText;
-            document.getElementById("closeBadgeBtn").innerText = t.closeText;
+            document.getElementById("closeBadgeBtn").innerText, t.closeText;
             document.getElementById("closeSetBtn").innerText = t.closeText;
         }
 
@@ -757,27 +754,28 @@
 
         window.addEventListener("keyup", () => { tooth.dx = 0; });
 
-        // دعم حركة الماوس
         window.addEventListener("mousemove", (e) => {
             if (!gameStarted || !gameRunning) return;
             let rect = canvas.getBoundingClientRect();
-            let mouseX = e.clientX - rect.left;
+            let scaleX = canvas.width / rect.width;
+            let mouseX = (e.clientX - rect.left) * scaleX;
             tooth.x = mouseX - tooth.width / 2;
         });
 
-        // دعم حركة اللمس على الموبايل بسلاسة تامة
         canvas.addEventListener("touchmove", (e) => {
             if (!gameStarted || !gameRunning) return;
             e.preventDefault();
             let rect = canvas.getBoundingClientRect();
-            let touchX = e.touches[0].clientX - rect.left;
+            let scaleX = canvas.width / rect.width;
+            let touchX = (e.touches[0].clientX - rect.left) * scaleX;
             tooth.x = touchX - tooth.width / 2;
         }, { passive: false });
 
         canvas.addEventListener("touchstart", (e) => {
             if (!gameStarted || !gameRunning) return;
             let rect = canvas.getBoundingClientRect();
-            let touchX = e.touches[0].clientX - rect.left;
+            let scaleX = canvas.width / rect.width;
+            let touchX = (e.touches[0].clientX - rect.left) * scaleX;
             tooth.x = touchX - tooth.width / 2;
         }, { passive: true });
 
@@ -998,13 +996,10 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             clouds.forEach(cloud => {
-                if (cloudImg.complete && cloudImg.naturalWidth !== 0) {
-                    ctx.drawImage(cloudImg, cloud.x, cloud.y, cloud.width, cloud.height);
-                } else {
-                    ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
-                    ctx.beginPath();
-                    ctx.roundRect(cloud.x, cloud.y, cloud.width, cloud.height, 15);
-                    ctx.fill();
+                cloud.x -= cloud.speed;
+                if (cloud.x + cloud.width < 0) {
+                    cloud.x = canvas.width + 60;
+                    cloud.y = Math.random() * 320;
                 }
             });
 
@@ -1097,7 +1092,7 @@
 
                 ctx.fillStyle = "#0f172a";
                 ctx.font = "bold 13px Tahoma";
-                ctx.textAlign = "center";
+                ctx.textAlign, "center";
                 ctx.fillText(levelUpMessage, canvas.width / 2, canvas.height / 2 - 10);
                 ctx.textAlign = "start";
             }

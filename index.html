@@ -187,7 +187,7 @@
             padding-bottom: 2px;
         }
 
-        #gameOverScreen {
+        #gameOverScreen, #pauseScreen {
             position: absolute;
             top: 55px;
             left: 10px;
@@ -202,12 +202,11 @@
             z-index: 5;
             padding: 15px;
             text-align: center;
-            cursor: pointer;
         }
-        #gameOverScreen h2 {
-            color: #ef4444;
+        #gameOverScreen h2, #pauseScreen h2 {
+            color: #38bdf8;
             font-size: 20px;
-            margin: 0 0 8px 0;
+            margin: 0 0 15px 0;
         }
         #finalScoreText {
             color: #38bdf8;
@@ -345,6 +344,7 @@
         <div class="header-container">
             <h1 id="gameTitle">🦷 Tooth Hero Adventure</h1>
             <div class="header-btns">
+                <button class="settings-btn" id="pauseToggleBtn" onclick="togglePause()" title="Pause Game">⏸️</button>
                 <button class="settings-btn" id="audioToggleBtn" onclick="toggleAudio()" title="Toggle Sound">🔊</button>
                 <button class="settings-btn" onclick="openSettings()" title="Settings">⚙️</button>
             </div>
@@ -354,6 +354,11 @@
             <div class="score-board"><span id="scoreText">⭐ Score:</span> <span id="scoreVal">0</span></div>
             <div class="best-board">🏆 <span id="bestText">Best:</span> <span id="bestVal">0</span></div>
             <div class="level-board">🎯 <span id="levelText">Level:</span> <span id="levelVal">1</span></div>
+        </div>
+
+        <div id="pauseScreen">
+            <h2 id="pauseTitle">⏸️ Game Paused</h2>
+            <button class="btn-option" onclick="togglePause()" id="resumeBtn">Resume ▶️</button>
         </div>
 
         <div id="gameOverScreen">
@@ -374,6 +379,7 @@
         let currentLang = localStorage.getItem("game_lang") || "en";
         let bestScore = localStorage.getItem("tooth_best_score") || 0;
         let gameStarted = false;
+        let isPaused = false;
         let isMuted = false;
 
         document.getElementById("bestVal").innerText = bestScore;
@@ -382,6 +388,22 @@
             isMuted = !isMuted;
             let btn = document.getElementById("audioToggleBtn");
             btn.innerText = isMuted ? "🔇" : "🔊";
+        }
+
+        function togglePause() {
+            if (!gameStarted || gameOver) return;
+            isPaused = !isPaused;
+            let pauseScreen = document.getElementById("pauseScreen");
+            let pauseBtn = document.getElementById("pauseToggleBtn");
+
+            if (isPaused) {
+                pauseScreen.style.display = "flex";
+                pauseBtn.innerText = "▶️";
+            } else {
+                pauseScreen.style.display = "none";
+                pauseBtn.innerText = "⏸️";
+                loop(); // استئناف حلقة اللعبة
+            }
         }
 
         let achievements = JSON.parse(localStorage.getItem("tooth_achievements")) || {
@@ -545,6 +567,8 @@
                 levelLabel: "المستوى:",
                 instructions: "حرك الضرس لجمع الفرش والخيط وغسول الفم وتفادي البكتيريا!",
                 gameOver: "انتهت اللعبة! 🦠",
+                pauseTitle: "⏸️ اللعبة متوقفة مؤقتاً",
+                resumeBtn: "استئناف اللعب ▶️",
                 finalScore: "النتيجة النهائية: ",
                 restartText: "انقر لإعادة المحاولة",
                 settingsTitle: "الإعدادات",
@@ -597,6 +621,8 @@
                 levelLabel: "Level:",
                 instructions: "Move tooth to collect brushes, floss & mouthwash, avoid bacteria!",
                 gameOver: "Game Over! 🦠",
+                pauseTitle: "⏸️ Game Paused",
+                resumeBtn: "Resume Game ▶️",
                 finalScore: "Final Score: ",
                 restartText: "Tap to Restart",
                 settingsTitle: "Settings",
@@ -657,6 +683,8 @@
             document.getElementById("bestText").innerText = t.bestLabel;
             document.getElementById("levelText").innerText = t.levelLabel;
             document.getElementById("instructionText").innerText = t.instructions;
+            document.getElementById("pauseTitle").innerText = t.pauseTitle;
+            document.getElementById("resumeBtn").innerText = t.resumeBtn;
             document.getElementById("setModalTitle").innerText = t.settingsTitle;
             document.getElementById("badgesTitle").innerText = t.badgesTitle;
             document.getElementById("howModalTitle").innerText = t.howModalTitle;
@@ -675,6 +703,7 @@
             initAudio();
             document.getElementById("startModal").style.display = "none";
             gameStarted = true;
+            isPaused = false;
             restartGame();
         }
 
@@ -755,7 +784,7 @@
         }
 
         window.addEventListener("mousemove", (e) => {
-            if (!gameStarted || !gameRunning) return;
+            if (!gameStarted || !gameRunning || isPaused) return;
             let rect = canvas.getBoundingClientRect();
             let scaleX = canvas.width / rect.width;
             let mouseX = (e.clientX - rect.left) * scaleX;
@@ -763,7 +792,7 @@
         });
 
         canvas.addEventListener("touchmove", (e) => {
-            if (!gameStarted || !gameRunning) return;
+            if (!gameStarted || !gameRunning || isPaused) return;
             e.preventDefault();
             let rect = canvas.getBoundingClientRect();
             let scaleX = canvas.width / rect.width;
@@ -772,7 +801,7 @@
         }, { passive: false });
 
         canvas.addEventListener("touchstart", (e) => {
-            if (!gameStarted || !gameRunning) return;
+            if (!gameStarted || !gameRunning || isPaused) return;
             let rect = canvas.getBoundingClientRect();
             let scaleX = canvas.width / rect.width;
             let touchX = (e.touches[0].clientX - rect.left) * scaleX;
@@ -785,6 +814,8 @@
             }
 
             document.getElementById("gameOverScreen").style.display = "none";
+            document.getElementById("pauseScreen").style.display = "none";
+            document.getElementById("pauseToggleBtn").innerText = "⏸️";
 
             score = 0;
             level = 1;
@@ -792,6 +823,7 @@
             particles = [];
             gameOver = false;
             gameRunning = true;
+            isPaused = false;
             tooth.x = 170;
             tooth.targetX = 170;
             tooth.hasShield = false;
@@ -831,7 +863,7 @@
         }
 
         function update() {
-            if (!gameStarted || !gameRunning || gameOver) return;
+            if (!gameStarted || !gameRunning || gameOver || isPaused) return;
 
             tooth.x += (tooth.targetX - tooth.x) * 0.35;
             if (tooth.x < 0) tooth.x = 0;
@@ -1081,7 +1113,7 @@
                     }
                 } else if (item.type === "shield") {
                     if (shieldImg.complete && shieldImg.naturalWidth !== 0) {
-                        ctx.drawImage(shieldImg, item.x, item.y, item.width, item.height);
+                        ctx.drawImage(shieldImg, item.x,Item.y, item.width, item.height);
                     } else {
                         ctx.fillStyle = "#10b981";
                         ctx.fillRect(item.x + 10, item.y + 5, 20, 30);
@@ -1125,7 +1157,7 @@
                 ctx.fill();
 
                 ctx.fillStyle = "#0f172a";
-                ctx.font = "bold 12px Tahoma";
+                ctx.font = "bold 12pxTahoma";
                 ctx.textAlign = "center";
                 ctx.textBaseline = "middle";
                 ctx.fillText(levelUpMessage, canvas.width / 2, boxY + boxHeight / 2);
@@ -1135,7 +1167,7 @@
         }
 
         function loop() {
-            if (!gameStarted) return;
+            if (!gameStarted || isPaused) return;
             update();
             draw();
             if (gameRunning || gameOver) {

@@ -362,7 +362,7 @@
         <canvas id="gameCanvas" width="400" height="480"></canvas>
     </div>
 
-    <div class="instructions" id="instructionText">Move tooth to collect brushes & mouthwash, avoid bacteria!</div>
+    <div class="instructions" id="instructionText">Move tooth to collect brushes, floss & mouthwash, avoid bacteria!</div>
 
     <script>
         const canvas = document.getElementById("gameCanvas");
@@ -460,6 +460,7 @@
             container.innerHTML = `
                 <div class="modal-item"><span>🦷</span><span>${t.move}</span></div>
                 <div class="modal-item"><span>🪥</span><span>${t.brush}</span></div>
+                <div class="modal-item"><span>🧵</span><span>${t.floss}</span></div>
                 <div class="modal-item"><span>🛡️</span><span>${t.shield}</span></div>
                 <div class="modal-item"><span>💧</span><span>${t.mouthwash}</span></div>
                 <div class="modal-item"><span>🦠</span><span>${t.bacteria}</span></div>
@@ -499,7 +500,7 @@
 
                 let now = audioCtx.currentTime;
 
-                if (type === 'score' || type === 'mouthwash') {
+                if (type === 'score' || type === 'mouthwash' || type === 'floss') {
                     osc.type = 'sine';
                     osc.frequency.setValueAtTime(587.33, now);
                     osc.frequency.exponentialRampToValueAtTime(1100, now + 0.2);
@@ -539,7 +540,7 @@
                 scoreLabel: "النقاط:",
                 bestLabel: "الأفضل:",
                 levelLabel: "المستوى:",
-                instructions: "حرك الضرس لجمع الفرش وغسول الفم وتفادي البكتيريا!",
+                instructions: "حرك الضرس لجمع الفرش والخيط وغسول الفم وتفادي البكتيريا!",
                 gameOver: "انتهت اللعبة! 🦠",
                 finalScore: "النتيجة النهائية: ",
                 restartText: "انقر لإعادة المحاولة",
@@ -551,7 +552,8 @@
                 levelUpText: "🎉 مبروك! أسنانك أصبحت أقوى!",
                 howToPlayItems: {
                     move: "حرك الضرس يميناً ويساراً بإصبعك على الشاشة.",
-                    brush: "اجمع فرش الأسنان لزيادة النقاط وترقية مستواك.",
+                    brush: "اجمع فرش الأسنان لزيادة النقاط.",
+                    floss: "اجمع خيط الأسنان (Dental Floss) لنقاط مضاعفة وحماية!",
                     shield: "التقط الدرع للحماية المؤقتة ضد البكتيريا.",
                     mouthwash: "غسول الفم: يقضي على كل البكتيريا الموجودة فوراً!",
                     bacteria: "تفادى البكتيريا والملوثات لكي لا تخسر!"
@@ -590,7 +592,7 @@
                 scoreLabel: "Score:",
                 bestLabel: "Best:",
                 levelLabel: "Level:",
-                instructions: "Move tooth to collect brushes & mouthwash, avoid bacteria!",
+                instructions: "Move tooth to collect brushes, floss & mouthwash, avoid bacteria!",
                 gameOver: "Game Over! 🦠",
                 finalScore: "Final Score: ",
                 restartText: "Tap to Restart",
@@ -602,7 +604,8 @@
                 levelUpText: "🎉 Awesome! Your teeth are stronger!",
                 howToPlayItems: {
                     move: "Drag your finger left & right to move the tooth.",
-                    brush: "Collect toothbrushes to earn points & level up.",
+                    brush: "Collect toothbrushes to earn points.",
+                    floss: "Collect Dental Floss for extra points & bonus care!",
                     shield: "Catch shields for temporary protection.",
                     mouthwash: "Mouthwash: Instantly clears all bacteria on screen!",
                     bacteria: "Avoid bacteria and germs to stay safe!"
@@ -695,6 +698,9 @@
         const brushImg = new Image();
         brushImg.src = "brush.png";
 
+        const flossImg = new Image();
+        flossImg.src = "floss.png"; // ملف صورة خيط الأسنان
+
         const bacteriaImg = new Image();
         bacteriaImg.src = "bacteria.png";
 
@@ -707,7 +713,7 @@
         const mouthwashImg = new Image();
         mouthwashImg.src = "mouthwash.png";
 
-        let tooth = { x: 170, y: 390, width: 60, height: 60, speed: 7, dx: 0, hasShield: false };
+        let tooth = { x: 170, y: 390, width: 60, height: 60, speed: 7, targetX: 170, hasShield: false };
         let items = [];
         let particles = [];
         let score = 0;
@@ -728,38 +734,29 @@
             { x: 120, y: 280, width: 70, height: 35, speed: 0.4 }
         ];
 
-        function createParticles(x, y, color, count = 12) {
+        function createParticles(x, y, color, count = 10) {
             for (let i = 0; i < count; i++) {
                 let angle = Math.random() * Math.PI * 2;
-                let speed = 1.5 + Math.random() * 3.5;
+                let speed = 1.5 + Math.random() * 3;
                 particles.push({
                     x: x,
                     y: y,
                     vx: Math.cos(angle) * speed,
                     vy: Math.sin(angle) * speed,
-                    size: 2 + Math.random() * 4,
+                    size: 2 + Math.random() * 3,
                     color: color,
                     alpha: 1,
-                    life: 20 + Math.random() * 15
+                    life: 15 + Math.random() * 10
                 });
             }
         }
-
-        window.addEventListener("keydown", (e) => {
-            if (!gameStarted) return;
-            if (e.key === "ArrowRight") tooth.dx = tooth.speed;
-            if (e.key === "ArrowLeft") tooth.dx = -tooth.speed;
-            if (e.key === "Enter" && gameOver) restartGame();
-        });
-
-        window.addEventListener("keyup", () => { tooth.dx = 0; });
 
         window.addEventListener("mousemove", (e) => {
             if (!gameStarted || !gameRunning) return;
             let rect = canvas.getBoundingClientRect();
             let scaleX = canvas.width / rect.width;
             let mouseX = (e.clientX - rect.left) * scaleX;
-            tooth.x = mouseX - tooth.width / 2;
+            tooth.targetX = mouseX - tooth.width / 2;
         });
 
         canvas.addEventListener("touchmove", (e) => {
@@ -768,7 +765,7 @@
             let rect = canvas.getBoundingClientRect();
             let scaleX = canvas.width / rect.width;
             let touchX = (e.touches[0].clientX - rect.left) * scaleX;
-            tooth.x = touchX - tooth.width / 2;
+            tooth.targetX = touchX - tooth.width / 2;
         }, { passive: false });
 
         canvas.addEventListener("touchstart", (e) => {
@@ -776,7 +773,7 @@
             let rect = canvas.getBoundingClientRect();
             let scaleX = canvas.width / rect.width;
             let touchX = (e.touches[0].clientX - rect.left) * scaleX;
-            tooth.x = touchX - tooth.width / 2;
+            tooth.targetX = touchX - tooth.width / 2;
         }, { passive: true });
 
         function restartGame() {
@@ -793,6 +790,7 @@
             gameOver = false;
             gameRunning = true;
             tooth.x = 170;
+            tooth.targetX = 170;
             tooth.hasShield = false;
             spawnTimer = 0;
             levelUpMessage = "";
@@ -809,6 +807,8 @@
                 type = "shield";
             } else if (rand < 0.05) {
                 type = "mouthwash";
+            } else if (rand < 0.15) {
+                type = "floss"; // خيط الأسنان يظهر بنسبة ممتازة
             } else if (rand < 0.65) {
                 type = "toothbrush";
             } else {
@@ -830,7 +830,7 @@
         function update() {
             if (!gameStarted || !gameRunning || gameOver) return;
 
-            tooth.x += tooth.dx;
+            tooth.x += (tooth.targetX - tooth.x) * 0.35;
             if (tooth.x < 0) tooth.x = 0;
             if (tooth.x + tooth.width > canvas.width) tooth.x = canvas.width - tooth.width;
 
@@ -868,7 +868,7 @@
                 level = newLevel;
                 document.getElementById("levelVal").innerText = level;
                 playSound('levelup');
-                createParticles(canvas.width / 2, canvas.height / 2, "#38bdf8", 30);
+                createParticles(canvas.width / 2, canvas.height / 2, "#38bdf8", 20);
                 
                 levelUpMessage = translations[currentLang].levelUpText;
                 levelUpTimer = Date.now() + 2000;
@@ -904,9 +904,21 @@
 
                         document.getElementById("scoreVal").innerText = score;
                         playSound('score');
-                        
-                        createParticles(centerX, centerY, "#38bdf8", 14);
-                        createParticles(centerX, centerY, "#facc15", 8);
+                        createParticles(centerX, centerY, "#38bdf8", 10);
+
+                        if (score > bestScore) {
+                            bestScore = score;
+                            localStorage.setItem("tooth_best_score", bestScore);
+                            document.getElementById("bestVal").innerText = bestScore;
+                        }
+
+                        items.splice(i, 1);
+                        continue;
+                    } else if (items[i].type === "floss") {
+                        score += 15; // خيط الأسنان يعطي نقاط أكثر لأنه أساسي!
+                        document.getElementById("scoreVal").innerText = score;
+                        playSound('floss');
+                        createParticles(centerX, centerY, "#a855f7", 14); // لون مميز للخيط
 
                         if (score > bestScore) {
                             bestScore = score;
@@ -927,12 +939,12 @@
                         }
 
                         playSound('shield');
-                        createParticles(centerX, centerY, "#10b981", 20);
+                        createParticles(centerX, centerY, "#10b981", 15);
                         items.splice(i, 1);
                         continue;
                     } else if (items[i].type === "mouthwash") {
                         playSound('mouthwash');
-                        createParticles(centerX, centerY, "#38bdf8", 40);
+                        createParticles(centerX, centerY, "#38bdf8", 25);
 
                         let bacteriaCount = 0;
                         items = items.filter(it => {
@@ -959,10 +971,9 @@
                             tooth.hasShield = false;
                             playSound('shield');
                             createParticles(centerX, centerY, "#ef4444", 15);
-                            createParticles(centerX, centerY, "#a855f7", 10);
                             items.splice(i, 1);
                         } else {
-                            createParticles(centerX, centerY, "#ef4444", 25);
+                            createParticles(centerX, centerY, "#ef4444", 20);
                             gameOver = true;
                             gameRunning = false;
                             playSound('hit');
@@ -996,10 +1007,13 @@
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
             clouds.forEach(cloud => {
-                cloud.x -= cloud.speed;
-                if (cloud.x + cloud.width < 0) {
-                    cloud.x = canvas.width + 60;
-                    cloud.y = Math.random() * 320;
+                if (cloudImg.complete && cloudImg.naturalWidth !== 0) {
+                    ctx.drawImage(cloudImg, cloud.x, cloud.y, cloud.width, cloud.height);
+                } else {
+                    ctx.fillStyle = "rgba(255, 255, 255, 0.2)";
+                    ctx.beginPath();
+                    ctx.roundRect(cloud.x, cloud.y, cloud.width, cloud.height, 15);
+                    ctx.fill();
                 }
             });
 
@@ -1050,6 +1064,18 @@
                         ctx.fillStyle = "#f43f5e";
                         ctx.fillRect(item.x + 11, item.y + 2, 18, 10);
                     }
+                } else if (item.type === "floss") {
+                    if (flossImg.complete && flossImg.naturalWidth !== 0) {
+                        ctx.drawImage(flossImg, item.x, item.y, item.width, item.height);
+                    } else {
+                        ctx.fillStyle = "#a855f7";
+                        ctx.beginPath();
+                        ctx.arc(item.x + 20, item.y + 20, 16, 0, Math.PI * 2);
+                        ctx.fill();
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "12px Tahoma";
+                        ctx.fillText("🧵", item.x + 12, item.y + 24);
+                    }
                 } else if (item.type === "shield") {
                     if (shieldImg.complete && shieldImg.naturalWidth !== 0) {
                         ctx.drawImage(shieldImg, item.x, item.y, item.width, item.height);
@@ -1085,7 +1111,6 @@
             });
 
             if (Date.now() < levelUpTimer && levelUpMessage) {
-                // تعديل عرض المستطيل ليصبح متجاوباً مع عرض الشاشة تماماً
                 let boxX = 20;
                 let boxWidth = canvas.width - 40;
                 let boxHeight = 46;

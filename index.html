@@ -187,6 +187,65 @@
             padding-bottom: 2px;
         }
 
+        /* Carousel Character Selector System */
+        .carousel-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+            width: 100%;
+        }
+        .nav-arrow {
+            background: rgba(56, 189, 248, 0.2);
+            border: 1.5px solid #38bdf8;
+            color: #38bdf8;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 50%;
+            width: 38px;
+            height: 38px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            user-select: none;
+            transition: all 0.2s ease;
+        }
+        .nav-arrow:active {
+            transform: scale(0.9);
+            background: #38bdf8;
+            color: #0f172a;
+        }
+        .char-display-box {
+            background: rgba(30, 41, 59, 0.8);
+            border: 2px solid #38bdf8;
+            border-radius: 16px;
+            padding: 12px;
+            width: 140px;
+            height: 140px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.3);
+        }
+        .char-preview-img {
+            width: 75px;
+            height: 75px;
+            object-fit: contain;
+            margin-bottom: 8px;
+        }
+        .char-preview-emoji {
+            font-size: 55px;
+            margin-bottom: 8px;
+        }
+        .char-preview-name {
+            font-size: 12px;
+            font-weight: bold;
+            color: #38bdf8;
+            text-align: center;
+        }
+
         #gameOverScreen, #pauseScreen {
             position: absolute;
             top: 55px;
@@ -298,10 +357,29 @@
         <div class="modal-content">
             <h2 id="startTitle">🦷 Tooth Hero Adventure</h2>
             <button class="btn-option" id="startBtn" onclick="startGame()">Start Game 🚀</button>
+            <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openCharSelectModal()">🦸‍♂️ <span id="charSelectBtnText">Choose Character</span></button>
             <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openHowToPlayModal()">📖 <span id="howToPlayBtnText">How to Play</span></button>
             <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openTipsModal()">💡 <span id="dentalTipsBtnText">Dental Care Tips</span></button>
             <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openBadgesModal()">🏅 <span id="badgesBtnText">Achievements</span></button>
             <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openSettingsFromStart()">⚙️ <span id="settingsBtnText">Settings</span></button>
+        </div>
+    </div>
+
+    <!-- Character Carousel Selector Modal -->
+    <div id="charModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <h2 id="charModalTitle">🦸‍♂️ Select Your Hero</h2>
+            
+            <div class="carousel-container">
+                <button class="nav-arrow" onclick="prevCharacter()">◄</button>
+                <div class="char-display-box">
+                    <div id="charVisualContainer"></div>
+                    <div class="char-preview-name" id="charPreviewName">Hero 1</div>
+                </div>
+                <button class="nav-arrow" onclick="nextCharacter()">►</button>
+            </div>
+
+            <button class="btn-option" onclick="confirmCharacterChoice()" id="confirmCharBtn">Select This Hero ✅</button>
         </div>
     </div>
 
@@ -332,6 +410,7 @@
     <div id="settingsModal" class="modal" style="display: none;">
         <div class="modal-content">
             <h2 id="setModalTitle">Settings</h2>
+            <button class="btn-option" style="background: rgba(30, 41, 59, 0.8); color: #38bdf8; border: 1px solid #38bdf8;" onclick="openCharSelectModalFromSettings()">🦸‍♂️ <span id="changeCharBtnText">Change Character</span></button>
             <button class="btn-option" onclick="switchLang('ar')">العربية 🇸🇦</button>
             <button class="btn-option" onclick="switchLang('en')">English 🇬🇧</button>
             <button class="btn-option btn-danger" id="closeSetBtn" onclick="closeSettings()">Close</button>
@@ -369,7 +448,7 @@
         </div>
 
         <canvas id="gameCanvas" width="400" height="500"></canvas>
-        <div class="instructions" id="instructionText">Move tooth to collect brushes, floss & mouthwash, avoid bacteria!</div>
+        <div class="instructions" id="instructionText">Move tooth to collect brushes & floss, avoid bacteria and sugary snacks!</div>
     </div>
 
     <script>
@@ -378,6 +457,9 @@
 
         let currentLang = localStorage.getItem("game_lang") || "en";
         let bestScore = localStorage.getItem("tooth_best_score") || 0;
+        let selectedCharId = parseInt(localStorage.getItem("tooth_selected_char")) || 1;
+        let previewCharId = selectedCharId;
+
         let gameStarted = false;
         let isPaused = false;
         let isMuted = false;
@@ -436,6 +518,54 @@
             setTimeout(() => {
                 toast.classList.remove("show");
             }, 3500);
+        }
+
+        function nextCharacter() {
+            previewCharId++;
+            if (previewCharId > 3) previewCharId = 1;
+            updateCarouselUI();
+        }
+
+        function prevCharacter() {
+            previewCharId--;
+            if (previewCharId < 1) previewCharId = 3;
+            updateCarouselUI();
+        }
+
+        function updateCarouselUI() {
+            let container = document.getElementById("charVisualContainer");
+            let activeImg = toothImages[previewCharId - 1];
+            
+            if (activeImg.complete && activeImg.naturalWidth !== 0) {
+                container.innerHTML = `<img src="${activeImg.src}" class="char-preview-img" alt="Hero">`;
+            } else {
+                let emojis = ["🦷", "🦷✨", "🦷😁"];
+                container.innerHTML = `<div class="char-preview-emoji">${emojis[previewCharId - 1]}</div>`;
+            }
+
+            let t = translations[currentLang];
+            document.getElementById("charPreviewName").innerText = (t.charNames && t.charNames[previewCharId - 1]) ? t.charNames[previewCharId - 1] : ("Hero " + previewCharId);
+        }
+
+        function confirmCharacterChoice() {
+            selectedCharId = previewCharId;
+            localStorage.setItem("tooth_selected_char", selectedCharId);
+            closeCharSelectModal();
+        }
+
+        function openCharSelectModal() {
+            previewCharId = selectedCharId;
+            updateCarouselUI();
+            document.getElementById("charModal").style.display = "flex";
+        }
+
+        function openCharSelectModalFromSettings() {
+            closeSettings();
+            openCharSelectModal();
+        }
+
+        function closeCharSelectModal() {
+            document.getElementById("charModal").style.display = "none";
         }
 
         function openBadgesModal() {
@@ -501,6 +631,7 @@
                 <div class="modal-item"><span>🧵</span><span>${t.floss}</span></div>
                 <div class="modal-item"><span>🛡️</span><span>${t.shield}</span></div>
                 <div class="modal-item"><span>💧</span><span>${t.mouthwash}</span></div>
+                <div class="modal-item"><span>🍫/🥤</span><span>${t.sugars}</span></div>
                 <div class="modal-item"><span>🦠</span><span>${t.bacteria}</span></div>
             `;
         }
@@ -554,6 +685,14 @@
                     gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
                     osc.start(now);
                     osc.stop(now + 0.3);
+                } else if (type === 'sugar') {
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.linearRampToValueAtTime(110, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
                 } else if (type === 'hit') {
                     osc.type = 'sawtooth';
                     osc.frequency.setValueAtTime(150, now);
@@ -571,6 +710,11 @@
                 title: "مغامرة الضرس البطل | MGMR Dentistry",
                 h1: "🦷 مغامرة الضرس البطل",
                 startBtnText: "ابدأ اللعبة 🚀",
+                charSelectBtnText: "اختيار الشخصية 🦸‍♂️",
+                changeCharBtnText: "تغيير الشخصية 🦸‍♂️",
+                confirmCharText: "اختيار هذا البطل ✅",
+                charModalTitle: "🦸‍♂️ اختر شخصية البطل",
+                charNames: ["Hero 1", "Hero 2", "Hero 3"],
                 howToPlayBtnText: "تعليمات اللعب",
                 dentalTipsBtnText: "نصائح العناية بالأسنان",
                 badgesBtnText: "الإنجازات",
@@ -578,7 +722,7 @@
                 scoreLabel: "النقاط:",
                 bestLabel: "الأفضل:",
                 levelLabel: "المستوى:",
-                instructions: "حرك الضرس لجمع الفرش والخيط وغسول الفم وتفادي البكتيريا!",
+                instructions: "حرك الضرس لجمع الفرش والخيط، وتجنب السكريات والبكتيريا!",
                 gameOver: "انتهت اللعبة! 🦠",
                 pauseTitle: "⏸️ اللعبة متوقفة مؤقتاً",
                 resumeBtn: "استئناف اللعب ▶️",
@@ -590,12 +734,14 @@
                 tipsModalTitle: "💡 نصائح العناية بالأسنان",
                 closeText: "إغلاق",
                 levelUpText: "🎉 ممتاز! وصلت للمستوى الخارق ",
+                sugarWarningText: "⚠️ تجنب السكريات لحماية أسنانك! (-15)",
                 howToPlayItems: {
                     move: "حرك الضرس يميناً ويساراً بإصبعك على الشاشة.",
                     brush: "اجمع فرش الأسنان لزيادة النقاط.",
                     floss: "اجمع خيط الأسنان (Dental Floss) لنقاط مضاعفة وحماية!",
-                    shield: "التقط الدرع للحماية المؤقتة ضد البكتيريا.",
-                    mouthwash: "غسول الفم: يقضي على كل البكتيريا الموجودة فوراً!",
+                    shield: "التقط الدرع للحماية المؤقتة ضد البكتيريا والسكريات.",
+                    mouthwash: "غسول الفم: يقضي على كل البكتيريا والسكريات فوراً!",
+                    sugars: "تجنب الشوكولاتة والمشروبات الغازية لأنها تنقص نقاطك وتسبب التسوس!",
                     bacteria: "تفادى البكتيريا والملوثات لكي لا تخسر!"
                 },
                 dentalTipsData: {
@@ -627,6 +773,11 @@
                 title: "Tooth Hero Adventure | MGMR Dentistry",
                 h1: "🦷 Tooth Hero Adventure",
                 startBtnText: "Start Game 🚀",
+                charSelectBtnText: "Choose Character 🦸‍♂️",
+                changeCharBtnText: "Change Character 🦸‍♂️",
+                confirmCharText: "Select This Hero ✅",
+                charModalTitle: "🦸‍♂️ Select Your Hero",
+                charNames: ["Hero 1", "Hero 2", "Hero 3"],
                 howToPlayBtnText: "How to Play",
                 dentalTipsBtnText: "Dental Care Tips",
                 badgesBtnText: "Achievements",
@@ -634,7 +785,7 @@
                 scoreLabel: "Score:",
                 bestLabel: "Best:",
                 levelLabel: "Level:",
-                instructions: "Move tooth to collect brushes, floss & mouthwash, avoid bacteria!",
+                instructions: "Move tooth to collect brushes & floss, avoid bacteria & sugary snacks!",
                 gameOver: "Game Over! 🦠",
                 pauseTitle: "⏸️ Game Paused",
                 resumeBtn: "Resume Game ▶️",
@@ -646,12 +797,14 @@
                 tipsModalTitle: "💡 Dental Care Tips",
                 closeText: "Close",
                 levelUpText: "🎉 Awesome! Milestone Level ",
+                sugarWarningText: "⚠️ Avoid sugary snacks! (-15)",
                 howToPlayItems: {
                     move: "Drag your finger left & right to move the tooth.",
                     brush: "Collect toothbrushes to earn points.",
                     floss: "Collect Dental Floss for extra points & bonus care!",
                     shield: "Catch shields for temporary protection.",
-                    mouthwash: "Mouthwash: Instantly clears all bacteria on screen!",
+                    mouthwash: "Mouthwash: Instantly clears screen obstacles!",
+                    sugars: "Avoid chocolate & sodas! They deduct points & harm teeth.",
                     bacteria: "Avoid bacteria and germs to stay safe!"
                 },
                 dentalTipsData: {
@@ -692,6 +845,10 @@
             document.getElementById("gameTitle").innerText = t.h1;
             document.getElementById("startTitle").innerText = t.h1;
             document.getElementById("startBtn").innerText = t.startBtnText;
+            document.getElementById("charSelectBtnText").innerText = t.charSelectBtnText;
+            document.getElementById("changeCharBtnText").innerText = t.changeCharBtnText;
+            document.getElementById("confirmCharBtn").innerText = t.confirmCharText;
+            document.getElementById("charModalTitle").innerText = t.charModalTitle;
             document.getElementById("howToPlayBtnText").innerText = t.howToPlayBtnText;
             document.getElementById("dentalTipsBtnText").innerText = t.dentalTipsBtnText;
             document.getElementById("badgesBtnText").innerText = t.badgesBtnText;
@@ -710,10 +867,18 @@
             document.getElementById("closeTipsBtn").innerText = t.closeText;
             document.getElementById("closeBadgeBtn").innerText = t.closeText;
             document.getElementById("closeSetBtn").innerText = t.closeText;
+            
+            updateCarouselUI();
         }
 
         window.onload = function() {
             applyLanguage(currentLang);
+            
+            let hasChosenCharBefore = localStorage.getItem("tooth_has_chosen_char");
+            if (!hasChosenCharBefore) {
+                localStorage.setItem("tooth_has_chosen_char", "true");
+                openCharSelectModal();
+            }
         };
 
         function startGame() {
@@ -741,8 +906,14 @@
             closeSettings();
         }
 
-        const toothImg = new Image();
-        toothImg.src = "tooth.png";
+        const toothImages = [new Image(), new Image(), new Image()];
+        toothImages[0].src = "tooth.png";
+        toothImages[1].src = "tooth2.png";
+        toothImages[2].src = "tooth3.png";
+
+        toothImages.forEach(img => {
+            img.onload = () => updateCarouselUI();
+        });
 
         const brushImg = new Image();
         brushImg.src = "brush.png";
@@ -761,6 +932,12 @@
 
         const mouthwashImg = new Image();
         mouthwashImg.src = "mouthwash.png";
+
+        const chocolateImg = new Image();
+        chocolateImg.src = "chocolate.png";
+
+        const sodaImg = new Image();
+        sodaImg.src = "soda.png";
 
         let tooth = { x: 170, y: 390, width: 60, height: 60, speed: 7, targetX: 170, hasShield: false };
         let items = [];
@@ -861,6 +1038,10 @@
                 type = "mouthwash";
             } else if (rand < 0.15) {
                 type = "floss";
+            } else if (rand < 0.25) {
+                type = "chocolate";
+            } else if (rand < 0.35) {
+                type = "soda";
             } else if (rand < 0.65) {
                 type = "toothbrush";
             } else {
@@ -908,7 +1089,6 @@
                 tooth.hasShield = false;
             }
 
-            // تقدم المستويات باستمرار، وتظهر رسالة الاحتفال الكبرى كل 5 مستويات (5، 10، 15...)
             let calculatedLevel = Math.floor(score / 100) + 1;
             if (calculatedLevel > level) {
                 level = calculatedLevel;
@@ -916,7 +1096,6 @@
                 playSound('levelup');
                 createParticles(canvas.width / 2, canvas.height / 2, "#38bdf8", 20);
                 
-                // إظهار رسالة الاحتفال الكبرى فقط عند كل مضاعفات الرقم 5
                 if (level % 5 === 0) {
                     levelUpMessage = translations[currentLang].levelUpText + level + "! 🌟";
                     levelUpTimer = Date.now() + 2500;
@@ -988,6 +1167,22 @@
 
                         items.splice(i, 1);
                         continue;
+                    } else if (items[i].type === "chocolate" || items[i].type === "soda") {
+                        if (tooth.hasShield) {
+                            playSound('shield');
+                            createParticles(centerX, centerY, "#f59e0b", 10);
+                        } else {
+                            score = Math.max(0, score - 15);
+                            document.getElementById("scoreVal").innerText = score;
+                            playSound('sugar');
+                            createParticles(centerX, centerY, "#84cc16", 15);
+                            if (navigator.vibrate) navigator.vibrate(150);
+
+                            levelUpMessage = translations[currentLang].sugarWarningText;
+                            levelUpTimer = Date.now() + 1500;
+                        }
+                        items.splice(i, 1);
+                        continue;
                     } else if (items[i].type === "shield") {
                         tooth.hasShield = true;
                         shieldTimer = Date.now() + shieldDuration;
@@ -1013,16 +1208,16 @@
                         playSound('mouthwash');
                         createParticles(centerX, centerY, "#38bdf8", 25);
 
-                        let bacteriaCount = 0;
+                        let badItemsCount = 0;
                         items = items.filter(it => {
-                            if (it.type === "bacteria") {
-                                bacteriaCount++;
+                            if (it.type === "bacteria" || it.type === "chocolate" || it.type === "soda") {
+                                badItemsCount++;
                                 return false;
                             }
                             return true;
                         });
 
-                        score += bacteriaCount * 15 + 20;
+                        score += badItemsCount * 15 + 20;
                         document.getElementById("scoreVal").innerText = score;
 
                         if (score > bestScore) {
@@ -1113,10 +1308,12 @@
                 ctx.fillRect(tooth.x, tooth.y - 10, tooth.width * progress, 6);
             }
 
-            if (toothImg.complete && toothImg.naturalWidth !== 0) {
-                ctx.drawImage(toothImg, tooth.x, tooth.y, tooth.width, tooth.height);
+            let activeImg = toothImages[selectedCharId - 1];
+            if (activeImg.complete && activeImg.naturalWidth !== 0) {
+                ctx.drawImage(activeImg, tooth.x, tooth.y, tooth.width, tooth.height);
             } else {
-                ctx.fillStyle = "#ffffff";
+                let charColors = ["#ffffff", "#fef08a", "#bae6fd"];
+                ctx.fillStyle = charColors[selectedCharId - 1] || "#ffffff";
                 ctx.beginPath();
                 ctx.roundRect(tooth.x + 5, tooth.y + 15, tooth.width - 10, tooth.height - 15, [10, 10, 20, 20]);
                 ctx.fill();
@@ -1143,6 +1340,30 @@
                         ctx.fillStyle = "#ffffff";
                         ctx.font = "12px Tahoma";
                         ctx.fillText("🧵", item.x + 12, item.y + 24);
+                    }
+                } else if (item.type === "chocolate") {
+                    if (chocolateImg.complete && chocolateImg.naturalWidth !== 0) {
+                        ctx.drawImage(chocolateImg, item.x, item.y, item.width, item.height);
+                    } else {
+                        ctx.fillStyle = "#78350f";
+                        ctx.beginPath();
+                        ctx.roundRect(item.x + 8, item.y + 8, 24, 24, 4);
+                        ctx.fill();
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "14px Tahoma";
+                        ctx.fillText("🍫", item.x + 12, item.y + 26);
+                    }
+                } else if (item.type === "soda") {
+                    if (sodaImg.complete && sodaImg.naturalWidth !== 0) {
+                        ctx.drawImage(sodaImg, item.x, item.y, item.width, item.height);
+                    } else {
+                        ctx.fillStyle = "#ef4444";
+                        ctx.beginPath();
+                        ctx.roundRect(item.x + 10, item.y + 6, 20, 28, 6);
+                        ctx.fill();
+                        ctx.fillStyle = "#ffffff";
+                        ctx.font = "14px Tahoma";
+                        ctx.fillText("🥤", item.x + 12, item.y + 26);
                     }
                 } else if (item.type === "shield") {
                     if (shieldImg.complete && shieldImg.naturalWidth !== 0) {
